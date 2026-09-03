@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ads Test Environment — The Daily Ledger</title>
+    <style>
+      :root {
+        --bg: #ffffff;
+        --fg: #16181d;
+        --muted: #5c6370;
+        --rule: #e3e6ec;
+        --accent: #1a56db;
+        --slot-bg: #f4f5f8;
+        --slot-line: #c9cedb;
+        --sticky-h: 60px;
+        --max: 1180px;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f1115;
+          --fg: #e6e8ee;
+          --muted: #9aa2b1;
+          --rule: #262a33;
+          --accent: #7aa2ff;
+          --slot-bg: #171a21;
+          --slot-line: #333947;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        -webkit-text-size-adjust: 100%;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font:
+          16px/1.65 -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+      }
+
+      /* ---------- chrome ---------- */
+      header.site {
+        border-bottom: 1px solid var(--rule);
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: var(--bg);
+      }
+      .bar {
+        max-width: var(--max);
+        margin: 0 auto;
+        padding: 14px 20px;
+        display: flex;
+        align-items: baseline;
+        gap: 20px;
+      }
+      .brand {
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        font-size: 19px;
+      }
+      .brand span {
+        color: var(--accent);
+      }
+      nav {
+        display: flex;
+        gap: 16px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      nav a {
+        color: inherit;
+        text-decoration: none;
+      }
+      nav a:hover {
+        color: var(--fg);
+      }
+      @media (max-width: 640px) {
+        nav {
+          display: none;
+        }
+      }
+
+      /* ---------- layout ---------- */
+      .wrap {
+        max-width: var(--max);
+        margin: 0 auto;
+        padding: 32px 20px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 300px;
+        gap: 40px;
+        align-items: start;
+      }
+      @media (max-width: 900px) {
+        .wrap {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 32px;
+        }
+      }
+
+      article h1 {
+        font-size: clamp(28px, 5vw, 40px);
+        line-height: 1.15;
+        letter-spacing: -0.025em;
+        margin: 0 0 12px;
+      }
+      .meta {
+        color: var(--muted);
+        font-size: 14px;
+        margin: 0 0 28px;
+      }
+      article h2 {
+        font-size: 22px;
+        letter-spacing: -0.015em;
+        margin: 36px 0 10px;
+      }
+      article p {
+        margin: 0 0 18px;
+      }
+      blockquote {
+        margin: 24px 0;
+        padding: 4px 0 4px 18px;
+        border-left: 3px solid var(--accent);
+        color: var(--muted);
+        font-style: italic;
+      }
+      /* ---------- ad slots ---------- */
+      .ad {
+        position: relative;
+        background: var(--slot-bg);
+        border: 1px dashed var(--slot-line);
+        border-radius: 6px;
+        display: grid;
+        place-items: center;
+        color: var(--muted);
+        font:
+          12px/1.4 ui-monospace,
+          SFMono-Regular,
+          Menlo,
+          monospace;
+        text-align: center;
+      }
+      .ad::before {
+        content: "ADVERTISEMENT";
+        position: absolute;
+        top: -9px;
+        left: 12px;
+        background: var(--bg);
+        padding: 0 6px;
+        font-size: 9px;
+        letter-spacing: 0.12em;
+        color: var(--muted);
+      }
+      .ad-label {
+        color: var(--muted);
+      }
+      .ad-label b {
+        display: block;
+        color: var(--fg);
+        font-size: 13px;
+        margin-bottom: 3px;
+      }
+
+      /* sidebar 300x250 + 300x600 sticky rail */
+      aside.rail {
+        position: sticky;
+        top: 76px;
+        display: grid;
+        gap: 28px;
+      }
+      @media (max-width: 900px) {
+        aside.rail {
+          position: static;
+        }
+      }
+      #banner-ad {
+        width: 300px;
+        height: 250px;
+        max-width: 100%;
+      }
+      @media (max-width: 900px) {
+        aside.rail {
+          justify-items: center;
+        }
+      }
+
+      /* sticky bottom anchor — shown on every viewport */
+      #ad-sticky {
+        display: grid;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 50;
+        height: var(--sticky-h);
+        border: 0;
+        border-top: 1px solid var(--rule);
+        border-radius: 0;
+        background: var(--slot-bg);
+        box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.12);
+      }
+      #ad-sticky::before {
+        display: none;
+      }
+      #ad-sticky-close {
+        position: absolute;
+        top: -24px;
+        right: 8px;
+        width: 24px;
+        height: 24px;
+        line-height: 22px;
+        border: 1px solid var(--rule);
+        border-bottom: 0;
+        border-radius: 4px 4px 0 0;
+        background: var(--slot-bg);
+        color: var(--muted);
+        font-size: 14px;
+        cursor: pointer;
+        padding: 0;
+      }
+      body {
+        padding-bottom: calc(var(--sticky-h) + 12px);
+      }
+      body.sticky-dismissed {
+        padding-bottom: 0;
+      }
+
+      footer.site {
+        border-top: 1px solid var(--rule);
+        margin-top: 48px;
+        padding: 24px 20px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      footer.site div {
+        max-width: var(--max);
+        margin: 0 auto;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site">
+      <div class="bar">
+        <div class="brand">The Daily <span>Ledger</span></div>
+        <nav>
+          <a href="#">World</a><a href="#">Markets</a><a href="#">Tech</a
+          ><a href="#">Culture</a><a href="#">Opinion</a>
+        </nav>
+      </div>
+    </header>
+
+    <div class="wrap">
+      <article>
+        <h1>
+          Harbour city rebuilds its ferry network, one slow morning at a time
+        </h1>
+        <p class="meta">By A. Reporter · Transport Desk · 8 min read</p>
+
+        <p>
+          The first ferry leaves at 5:42 a.m., and by then the terminal has
+          already been awake for an hour. Deckhands hose down the gangways, the
+          coffee cart rolls out from under its tarpaulin, and a small crowd of
+          commuters forms in the same shape it has taken for thirty years — a
+          loose crescent facing the water, everyone watching for the same set of
+          running lights to round the point.
+        </p>
+
+        <p>
+          What is different this year is the boat. After a decade of deferred
+          maintenance and three separate reviews, the city has begun replacing
+          its ageing diesel fleet with a set of hybrid-electric vessels that
+          charge at the dock between crossings. The first two entered service in
+          March. Four more arrive before the end of the year.
+        </p>
+
+        <h2>A network built by accident</h2>
+
+        <p>
+          The ferry network was never designed so much as accumulated. Routes
+          were added when a suburb grew, cut when a bridge opened, and
+          reinstated when the bridge filled up. The result is a timetable that
+          makes sense only to the people who use it daily, and a fleet in which
+          no two boats share the same spare parts.
+        </p>
+
+        <blockquote>
+          "We were running a museum and calling it a transport system," said one
+          operations manager, who has worked the harbour for twenty-two years.
+          "Beautiful boats. Terrible spreadsheets."
+        </blockquote>
+
+        <p>
+          The replacement programme is as much an exercise in standardisation as
+          it is in decarbonisation. Every new vessel shares a hull, a berth
+          footprint, and a charging interface. Crews trained on one can work any
+          of them. Maintenance windows shrink from days to hours.
+        </p>
+
+        <h2>What the timetable can't show</h2>
+
+        <p>
+          Ridership numbers tell one story: a 14 percent increase on the two
+          upgraded routes since March, most of it in the off-peak shoulder
+          hours. The quieter story is on the boats themselves. Without the low
+          diesel rumble, passengers talk. The upper deck, historically the
+          domain of people avoiding conversation, has become the loudest part of
+          the vessel.
+        </p>
+
+        <p>
+          Not everyone is convinced. Operators on the outer routes point out
+          that charging infrastructure has been installed at only four of the
+          eleven terminals, which means the new vessels are effectively confined
+          to the inner harbour. The longer crossings — the ones where fuel costs
+          actually bite — remain on the old fleet indefinitely.
+        </p>
+
+        <h2>The next five years</h2>
+
+        <p>
+          The transport authority's own projections assume full fleet
+          replacement by 2031, contingent on a funding round that has not yet
+          been approved. Officials describe the timeline as "ambitious but
+          achievable," a phrase that has appeared in each of the three prior
+          reviews.
+        </p>
+
+        <p>
+          For now the 5:42 runs on schedule. The crescent of commuters forms,
+          the running lights round the point, and the boat comes in quietly
+          enough that the gulls don't bother moving.
+        </p>
+
+        <p>
+          Whether that quiet reaches the outer terminals depends less on
+          engineering than on the budget papers due in the spring — and on
+          whether a city that built its network by accident can bring itself to
+          plan one on purpose.
+        </p>
+      </article>
+
+      <!-- ===== SIDEBAR ADS ===== -->
+      <aside class="rail">
+        <div
+          class="ad"
+          id="banner-ad"
+          data-ad-slot="sidebar-mpu"
+          data-sizes="300x250"
+        ></div>
+      </aside>
+      <!-- ===== /SIDEBAR AD ===== -->
+    </div>
+
+    <footer class="site">
+      <div>
+        Test environment — ad slots are served by Google Publisher Tag using
+        Google's public sample ad unit.
+      </div>
+    </footer>
+
+    <!-- ===== STICKY BOTTOM AD ===== -->
+    <div class="ad" id="ad-sticky" data-ad-slot="sticky" data-sizes="320x50">
+      <button id="ad-sticky-close" aria-label="Close advertisement">
+        &times;
+      </button>
+    </div>
+    <!-- ===== /STICKY BOTTOM AD ===== -->
+    <script>
+      const AD_UNIT = "/6355419/Travel/Europe/France/Paris";
+
+      // The two slots on this page.
+      const SLOTS = [
+        { id: "banner-ad", size: [300, 250], label: "Sidebar 300×250" },
+        { id: "ad-sticky", size: [320, 50], label: "Sticky 320×50" },
+      ];
+
+      // Paint a message inside a slot so a blank box is never ambiguous.
+      function note(id, title, detail) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const msg = document.createElement("div");
+        msg.className = "ad-label";
+        msg.innerHTML = "<b>" + title + "</b>" + detail;
+        el.querySelectorAll(".ad-label").forEach((n) => n.remove());
+        el.appendChild(msg);
+      }
+
+      function loadScript(src, label) {
+        const tag = document.createElement("script");
+        tag.async = true;
+        tag.src = src;
+        tag.onerror = () => {
+          console.warn("[ads] " + label + " failed to load — blocked/offline?");
+          SLOTS.forEach((s) =>
+            note(s.id, label + " blocked", "check the Network tab"),
+          );
+        };
+        document.head.appendChild(tag);
+      }
+
+      function showGAM() {
+        window.googletag = window.googletag || { cmd: [] };
+        loadScript(
+          "https://securepubads.g.doubleclick.net/tag/js/gpt.js",
+          "gpt.js",
+        );
+
+        googletag.cmd.push(() => {
+          SLOTS.forEach((s) => {
+            googletag
+              .defineSlot(AD_UNIT, s.size, s.id)
+              .addService(googletag.pubads());
+          });
+
+          // Says definitively whether each slot filled or came back empty.
+          googletag.pubads().addEventListener("slotRenderEnded", (event) => {
+            const id = event.slot.getSlotElementId();
+            console.log("[" + id + "] slotRenderEnded", {
+              isEmpty: event.isEmpty,
+              size: event.size,
+              creativeId: event.creativeId,
+              lineItemId: event.lineItemId,
+            });
+            if (event.isEmpty) {
+              note(id, "Empty response", "no creative for " + AD_UNIT);
+            }
+          });
+
+          // Enable the PubAdsService.
+          googletag.enableServices();
+        });
+      }
+
+      // Prebid standalone: run an auction and render the winning bid straight
+      // into the slot. This deliberately does NOT hand off to GAM — the sample
+      // ad unit has no hb_pb line items, so a GAM handoff could never render.
+      // placementId 13144370 is Prebid's public test placement; it always bids.
+      const PBJS_BUNDLE =
+        "https://cdn.jsdelivr.net/npm/prebid.js@latest/dist/not-for-prod/prebid.js";
+      const PBJS_TEST_PLACEMENT = 13144370;
+
+      function renderBid(id) {
+        const bids = pbjs.getHighestCpmBids(id);
+        if (!bids.length) {
+          note(id, "No bid", "no Prebid demand for this size");
+          return;
+        }
+        const bid = bids[0];
+        console.log("[" + id + "] winning bid", {
+          bidder: bid.bidder,
+          cpm: bid.cpm,
+          size: bid.width + "x" + bid.height,
+        });
+
+        const el = document.getElementById(id);
+        el.querySelectorAll(".ad-label").forEach((n) => n.remove());
+        const frame = document.createElement("iframe");
+        frame.width = bid.width;
+        frame.height = bid.height;
+        frame.style.border = "0";
+        frame.scrolling = "no";
+        el.appendChild(frame);
+        // renderAd writes the creative into the iframe's own document.
+        pbjs.renderAd(frame.contentWindow.document, bid.adId);
+      }
+
+      function showPBJS() {
+        window.pbjs = window.pbjs || { que: [] };
+        loadScript(PBJS_BUNDLE, "prebid.js");
+
+        pbjs.que.push(() => {
+          pbjs.addAdUnits(
+            SLOTS.map((s) => ({
+              code: s.id,
+              mediaTypes: { banner: { sizes: [s.size] } },
+              bids: [
+                {
+                  bidder: "appnexus",
+                  params: { placementId: PBJS_TEST_PLACEMENT },
+                },
+              ],
+            })),
+          );
+
+          pbjs.requestBids({
+            timeout: 2000,
+            bidsBackHandler: () => {
+              console.log("[ads] prebid auction complete");
+              SLOTS.forEach((s) => renderBid(s.id));
+            },
+          });
+        });
+      }
+
+      // ---------- feature flags ----------
+      // Reads ?showGAM= / ?showPBJS= (1|0, true|false, yes|no, on|off).
+      // Precedence: URL query > preset window.APP_CONFIG > default below.
+      const FLAG_DEFAULTS = {
+        showGAM: true,
+        showPBJS: false,
+      };
+
+      function flagFromQuery(name) {
+        const raw = new URLSearchParams(location.search).get(name);
+        if (raw === null) return undefined;
+        if (/^(1|true|yes|on)$/i.test(raw)) return true;
+        if (/^(0|false|no|off)$/i.test(raw)) return false;
+        console.warn("[flags] " + name + '="' + raw + '" unrecognised—ignoring');
+        return undefined;
+      }
+
+      // Don't clobber a value set by an earlier script or the server.
+      window.APP_CONFIG = window.APP_CONFIG || {};
+      window.APP_CONFIG.FEATURES = window.APP_CONFIG.FEATURES || {};
+
+      const FEATURES = window.APP_CONFIG.FEATURES;
+      const fromQuery = {};
+      for (const [name, fallback] of Object.entries(FLAG_DEFAULTS)) {
+        fromQuery[name] = flagFromQuery(name);
+        // ?? not || so an explicit `false` survives.
+        FEATURES[name] = fromQuery[name] ?? FEATURES[name] ?? fallback;
+      }
+
+      // GAM and Prebid are alternate paths, so asking for one turns the other
+      // off. Pass both explicitly (?showGAM=1&showPBJS=1) for header bidding.
+      if (FEATURES.showPBJS && fromQuery.showGAM === undefined) {
+        FEATURES.showGAM = false;
+      }
+      console.log("[flags]", { ...FEATURES });
+
+      document
+        .getElementById("ad-sticky-close")
+        .addEventListener("click", function () {
+          document.getElementById("ad-sticky").style.display = "none";
+          document.body.classList.add("sticky-dismissed");
+        });
+
+      // The flags are independent: Prebid runs first (it would set targeting),
+      // then GAM requests the slots. Either can run without the other.
+      if (FEATURES.showPBJS) {
+        showPBJS();
+      }
+
+      if (FEATURES.showGAM) {
+        showGAM();
+        googletag.cmd.push(() => SLOTS.forEach((s) => googletag.display(s.id)));
+      } else if (!FEATURES.showPBJS) {
+        // Nothing will request these slots — say so instead of leaving blanks.
+        SLOTS.forEach((s) => note(s.id, s.label, "ads off (?showGAM=0)"));
+      }
+    </script>
+  </body>
+</html>
